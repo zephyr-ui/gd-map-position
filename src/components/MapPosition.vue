@@ -24,18 +24,6 @@ const initMap = async () => {
       center: [115.15, 36.29], //初始化地图中心点位置
     });
 
-    const positionPicker = new PositionPicker({
-      mode: "dragMap", //设定为拖拽地图模式，可选'dragMap'、'dragMarker'，默认为'dragMap'
-      map: map.value
-    });
-
-    // 注册监听
-    positionPicker.on("success", (positionResult) => {
-      emit('change', positionResult)
-    });
-
-    positionPicker.start();
-
     const auto = new AMap.AutoComplete({
       input: 'tipinput'
     });
@@ -47,7 +35,17 @@ const initMap = async () => {
       placeSearch.search(e.poi.name);
     });
 
+    const positionPicker = new PositionPicker({
+      mode: "dragMap", //设定为拖拽地图模式，可选'dragMap'、'dragMarker'，默认为'dragMap'
+      map: map.value
+    });
 
+    // 注册监听
+    positionPicker.on("success", (positionResult) => {
+      emit('change', positionResult)
+    });
+
+    positionPicker.start();
   });
 }
 
