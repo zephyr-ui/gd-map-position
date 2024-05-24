@@ -9,46 +9,46 @@ let map = ref(null)
 const emit = defineEmits('change')
 
 const initMap = async () => {
-  AMapLoader.load({
-    key: "", // 申请好的Web端开发者Key去官网申请
+  const AMap = await AMapLoader.load({
+    key: "", // 申请好的Web端开发者Key
     version: "2.0", // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
     plugins: ["AMap.Scale", "AMap.PlaceSearch", "AMap.AutoComplete"], // 需要使用的的插件
     AMapUI: {
       plugins: ["misc/PositionPicker"],
     },
   })
-    .then((AMap) => {
-      AMapUI.loadUI(["misc/PositionPicker"], function (PositionPicker) {
-        map.value = new AMap.Map("draw-station-container", {
-          viewMode: "3D", //是否为3D地图模式
-          zoom: 15, //初始化地图级别
-          center: [115.15, 36.29], //初始化地图中心点位置
-        });
+  AMapUI.loadUI(["misc/PositionPicker"], function (PositionPicker) {
+    map.value = new AMap.Map("draw-station-container", {
+      viewMode: "3D", //是否为3D地图模式
+      zoom: 15, //初始化地图级别
+      center: [115.15, 36.29], //初始化地图中心点位置
+    });
 
-        let positionPicker = new PositionPicker({
-          mode: "dragMap", //设定为拖拽地图模式，可选'dragMap'、'dragMarker'，默认为'dragMap'
-          map: map.value
-        });
+    const positionPicker = new PositionPicker({
+      mode: "dragMap", //设定为拖拽地图模式，可选'dragMap'、'dragMarker'，默认为'dragMap'
+      map: map.value
+    });
 
-        const auto = new AMap.AutoComplete({
-          input: 'tipinput'
-        });
+    // 注册监听
+    positionPicker.on("success", (positionResult) => {
+      emit('change', positionResult)
+    });
 
-        let placeSearch = new AMap.PlaceSearch({ map: map.value });
+    positionPicker.start();
 
-        auto.on("select", (e) => {
-          placeSearch.setCity(e.poi.adcode);
-          placeSearch.search(e.poi.name);
-        });
+    const auto = new AMap.AutoComplete({
+      input: 'tipinput'
+    });
 
-        // 注册监听
-        positionPicker.on("success", (positionResult) => {
-          emit('change', positionResult)
-        });
+    const placeSearch = new AMap.PlaceSearch({ map: map.value });
 
-        positionPicker.start();
-      });
-    })
+    auto.on("select", (e) => {
+      placeSearch.setCity(e.poi.adcode);
+      placeSearch.search(e.poi.name);
+    });
+
+
+  });
 }
 
 initMap()
